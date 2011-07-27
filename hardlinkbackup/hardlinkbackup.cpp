@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-int CopyDirWithHardLink(CString source, CString target)
+int CopyDirWithHardLink(const CString &source, const CString &target)
 {
 	WIN32_FIND_DATA FindFileData;
 	HANDLE hFind = INVALID_HANDLE_VALUE;
@@ -45,7 +45,7 @@ int CopyDirWithHardLink(CString source, CString target)
 	return 0;
 }
 
-DWORD UpdateDirectoryModificationDate(CString dir)
+DWORD UpdateDirectoryModificationDate(const CString &dir)
 {
 	SetLastError(ERROR_SUCCESS);
 
@@ -110,9 +110,9 @@ DWORD UpdateDirectoryModificationDate(CString dir)
 	return dwRetVal;
 }
 
-int DeleteExtraFileAndDirectory(CString source, CString target);
+int DeleteExtraFileAndDirectory(const CString &source, const CString &target);
 
-int UpdateDirectory(CString source, CString target)
+int UpdateDirectory(const CString &source, const CString &target)
 {
 	WIN32_FIND_DATA FindFileData;
 	HANDLE hFind = INVALID_HANDLE_VALUE;
@@ -179,7 +179,7 @@ int UpdateDirectory(CString source, CString target)
 
 }
 
-bool DirectoryExists(CString dirName)
+bool DirectoryExists(const CString &dirName)
 {
 	DWORD attribs = ::GetFileAttributes(dirName);
 	if (attribs == INVALID_FILE_ATTRIBUTES) {
@@ -188,7 +188,7 @@ bool DirectoryExists(CString dirName)
 	return (attribs & FILE_ATTRIBUTE_DIRECTORY) != 0;
 }
 
-bool FileExists(CString FileName)
+bool FileExists(const CString &FileName)
 {
 	DWORD attribs = ::GetFileAttributes(FileName);
 	if (attribs == INVALID_FILE_ATTRIBUTES) {
@@ -198,7 +198,7 @@ bool FileExists(CString FileName)
 	return (attribs & FILE_ATTRIBUTE_DIRECTORY) == 0;
 }
 
-int DeleteDirectory(CString target)
+int DeleteDirectory(const CString &target)
 {
 	WIN32_FIND_DATA FindFileData;
 	HANDLE hFind = INVALID_HANDLE_VALUE;
@@ -242,7 +242,7 @@ int DeleteDirectory(CString target)
 
 }
 
-int DeleteExtraFileAndDirectory(CString source, CString target)
+int DeleteExtraFileAndDirectory(const CString &source, const CString &target)
 {
 	// assume source and target are the same except that target has extra files or directory
 	WIN32_FIND_DATA FindFileData;
@@ -299,24 +299,25 @@ int DeleteExtraFileAndDirectory(CString source, CString target)
 
 }
 
-CString MakeLongPath(CString path)
+CString MakeLongPath(const CString &path)
 {
+	CString longpath;
 	// determine local vs unc, and prepend long path
 	if(path.Find(L"\\\\") == 0)
 	{	
-		path = CString(L"\\\\?\\UNC") + &((LPCWSTR)path)[1];
+		longpath = CString(L"\\\\?\\UNC") + &((LPCWSTR)path)[1];
 	}
 	else
 	{
-		path = L"\\\\?\\" + path;
+		longpath = L"\\\\?\\" + path;
 	}
 
-	return path;
+	return longpath;
 }
 
 
 
-int RotateDirectory(int n, CString backupdir, CString &deletedir)
+CString RotateDirectory(int n, const CString &backupdir)
 {
 	WCHAR numstr1[1024];
 	WCHAR numstr2[1024];
@@ -326,10 +327,8 @@ int RotateDirectory(int n, CString backupdir, CString &deletedir)
 	srand( (unsigned)time( NULL ) );
 	int ran = rand();
 	swprintf(numstr2, 1023, L"%i", ran);
-	deletedir = backupdir + L"\\delete_" + numstr2;
+	CString deletedir = backupdir + L"\\delete_" + numstr2;
 	MoveFile(backupdir + L"\\" + numstr1, deletedir);
-
-	DeleteDirectory(deletedir);
 
 	while(n > 0)
 	{
@@ -340,7 +339,7 @@ int RotateDirectory(int n, CString backupdir, CString &deletedir)
 		n--;
 	}
 
-	return 0;
+	return deletedir;
 }
 
 // Prints the usage/help and an optional error message
@@ -458,8 +457,7 @@ int wmain(int argc, wchar_t* argv[])
 		UpdateDirectory(source, backupdir + L"\\nextstage");
 	}	
 	wprintf(L"Rotating backups in \"%s\"\n", backupdir);
-	CString deletedir = "";
-	RotateDirectory(numbackups, backupdir, deletedir);
+	CString deletedir = RotateDirectory(numbackups, backupdir);
 	wprintf(L"Moving \"%s\" to \"%s\"\n", backupdir + L"\\nextstage", backupdir + L"\\1");
 	MoveFile(backupdir + L"\\nextstage", backupdir + L"\\1");
 	wprintf(L"Hardlinking \"%s\" to \"%s\"\n", backupdir + L"\\1", backupdir + L"\\nextstage");
