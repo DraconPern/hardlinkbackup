@@ -280,7 +280,7 @@ int DeleteExtraFileAndDirectory(const CString &source, const CString &target)
 		{
 			if(!DirectoryExists(sourcefullpath))
 			{
-				wprintf(L"Deleting \"%s\"\n", targetfullpath);
+				wprintf(L"Deleting directory \"%s\"\n", targetfullpath);
 				DeleteDirectory(targetfullpath);	
 			}
 		}
@@ -288,7 +288,7 @@ int DeleteExtraFileAndDirectory(const CString &source, const CString &target)
 		{
 			if(!FileExists(sourcefullpath))
 			{
-				wprintf(L"Deleting \"%s\"\n", targetfullpath);
+				wprintf(L"Deleting file \"%s\"\n", targetfullpath);
 				DeleteFile(targetfullpath);									
 			}
 		}
@@ -387,7 +387,7 @@ static bool ParseOptions(int argc,  LPTSTR argv[],
 					numbackups = _wtoi(next_arg);				    
 					++i;
 				} else if(!_tcscmp(curr_arg, _T("-S"))) {
-					skipupdate = TRUE;					
+					skipupdate = TRUE;
 				} else if(!_tcscmp(curr_arg, _T("-h"))) {
 					ShowUsage(_T("Help Requested"));
 					return false;
@@ -463,7 +463,7 @@ int wmain(int argc, wchar_t* argv[])
 	wprintf(L"Hardlinking \"%s\" to \"%s\"\n", backupdir + L"\\1", backupdir + L"\\nextstage");
 	CreateDirectory(backupdir + L"\\nextstage", NULL);
 	CopyDirWithHardLink(backupdir + L"\\1", backupdir + L"\\nextstage");
-	wprintf(L"Deleting \"%s\"\n", deletedir);
+	wprintf(L"Deleting directory \"%s\"\n", deletedir);
 	DeleteDirectory(deletedir);
 	return 0;
 }
