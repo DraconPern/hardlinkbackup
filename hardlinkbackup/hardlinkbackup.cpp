@@ -42,7 +42,7 @@ int CopyDirWithHardLink(const CString &source, const CString &target)
 		}
 	} while(FindNextFile(hFind, &FindFileData) != 0);
 
-	return 0;
+	return ERROR_SUCCESS;
 }
 
 DWORD UpdateDirectoryModificationDate(const CString &dir)
@@ -111,6 +111,7 @@ DWORD UpdateDirectoryModificationDate(const CString &dir)
 }
 
 int DeleteExtraFileAndDirectory(const CString &source, const CString &target);
+int DeleteFileIncludingReadOnly(const CString &target);
 
 int UpdateDirectory(const CString &source, const CString &target)
 {
@@ -157,7 +158,7 @@ int UpdateDirectory(const CString &source, const CString &target)
 			{
 				if(CompareFileTime(&FindFileData.ftLastWriteTime, &FileData.ftLastWriteTime) != 0)
 				{
-					DeleteFile(targetfullpath);
+					DeleteFileIncludingReadOnly(targetfullpath);
 					wprintf(L"Copying \"%s\"\n", sourcefullpath);
 					CopyFile(sourcefullpath, targetfullpath, FALSE);
 				}
@@ -175,7 +176,7 @@ int UpdateDirectory(const CString &source, const CString &target)
 
 	DeleteExtraFileAndDirectory(source, target);
 
-	return 0;
+	return ERROR_SUCCESS;
 
 }
 
@@ -196,6 +197,21 @@ bool FileExists(const CString &FileName)
 	}
 	
 	return (attribs & FILE_ATTRIBUTE_DIRECTORY) == 0;
+}
+
+int DeleteFileIncludingReadOnly(const CString &target)
+{
+	DWORD attrib = GetFileAttributes(target);
+	if(attrib != INVALID_FILE_ATTRIBUTES)
+	{
+		if(attrib & FILE_ATTRIBUTE_READONLY)
+			SetFileAttributes(target, attrib ^ FILE_ATTRIBUTE_READONLY);
+
+		DeleteFile(target);
+		return ERROR_SUCCESS;
+	}
+
+	return 1;
 }
 
 int DeleteDirectory(const CString &target)
@@ -231,14 +247,14 @@ int DeleteDirectory(const CString &target)
 		}
 		else
 		{
-			DeleteFile(targetfullpath);						
+			DeleteFileIncludingReadOnly(targetfullpath);						
 		}
 	}
 
 	FindClose(hFind);
 
 	RemoveDirectory(target);
-	return 0;
+	return ERROR_SUCCESS;
 
 }
 
@@ -288,14 +304,14 @@ int DeleteExtraFileAndDirectory(const CString &source, const CString &target)
 		{
 			if(!FileExists(sourcefullpath))
 			{
-				wprintf(L"Deleting file \"%s\"\n", targetfullpath);
-				DeleteFile(targetfullpath);									
+				wprintf(L"Deleting file \"%s\"\n", targetfullpath);				
+				DeleteFileIncludingReadOnly(targetfullpath);									
 			}
 		}
 	} while(FindNextFile(hFind, &FindFileData) != 0);
 	FindClose(hFind);
 	
-	return 0;
+	return ERROR_SUCCESS;
 
 }
 
@@ -465,6 +481,6 @@ int wmain(int argc, wchar_t* argv[])
 	CopyDirWithHardLink(backupdir + L"\\1", backupdir + L"\\nextstage");
 	wprintf(L"Deleting directory \"%s\"\n", deletedir);
 	DeleteDirectory(deletedir);
-	return 0;
+	return ERROR_SUCCESS;
 }
 
