@@ -1,5 +1,6 @@
-// hardlinkbackup.cpp : Defines the entry point for the console application.
-//
+// hardlinkbackup.cpp
+// Copyright 2011 (c) Ing-Long Eric Kuo
+// Licensed under GPL v2 or greater
 
 #include "stdafx.h"
 
