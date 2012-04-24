@@ -474,12 +474,10 @@ int wmain(int argc, wchar_t* argv[])
 		UpdateDirectory(source, backupdir + L"\\nextstage");
 	}	
 	wprintf(L"Rotating backups in \"%s\"\n", backupdir);
-	CString deletedir = RotateDirectory(numbackups, backupdir);
-	wprintf(L"Moving \"%s\" to \"%s\"\n", backupdir + L"\\nextstage", backupdir + L"\\1");
-	MoveFile(backupdir + L"\\nextstage", backupdir + L"\\1");
-	wprintf(L"Hardlinking \"%s\" to \"%s\"\n", backupdir + L"\\1", backupdir + L"\\nextstage");
-	CreateDirectory(backupdir + L"\\nextstage", NULL);
-	CopyDirWithHardLink(backupdir + L"\\1", backupdir + L"\\nextstage");
+	CString deletedir = RotateDirectory(numbackups, backupdir);	
+	wprintf(L"Hardlinking \"%s\" to \"%s\"\n", backupdir + L"\\nextstage", backupdir + L"\\1");
+	CreateDirectory(backupdir + L"\\1", NULL);
+	CopyDirWithHardLink(backupdir + L"\\nextstage", backupdir + L"\\1");
 	wprintf(L"Deleting directory \"%s\"\n", deletedir);
 	DeleteDirectory(deletedir);
 	return ERROR_SUCCESS;
