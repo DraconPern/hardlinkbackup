@@ -11,6 +11,5 @@
     hardlinkbackup \\Server1\share\ G:\snapshots\server1\
 
 ## Compiling
-Tested with VS2012
-Requires at least VC++ 9.0 (VS2008)
-No other dependency required.   
+- Tested with VS2012
+- No other dependency required.   
