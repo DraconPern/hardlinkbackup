@@ -382,11 +382,11 @@ static bool ParseOptions(int argc,  LPTSTR argv[],
 	skipupdate = FALSE;
 
 	if(!argc) {
-		ShowUsage(_T(""));
+		ShowUsage();
 		return false;
 	} else if(argc == 1) {
 		if(!_tcscmp(argv[0], _T("-h"))) {
-			ShowUsage(_T(""));
+			ShowUsage();
 			return false;
 		} else if(argv[0][0] == _T('-')) {
 			ShowUsage(_T("Not enough arguments"));
